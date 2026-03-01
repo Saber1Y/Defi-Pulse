@@ -1,11 +1,12 @@
 "use client";
 
-import { ReactNode, useState } from "react";
+import { ReactNode } from "react";
 import {
   DynamicContextProvider,
   DynamicWidget,
 } from "@dynamic-labs/sdk-react-core";
 import { DynamicWagmiConnector } from "@dynamic-labs/wagmi-connector";
+import { EthereumWalletConnectors } from "@dynamic-labs/ethereum";
 import { createConfig, WagmiProvider } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { http } from "viem";
@@ -21,41 +22,22 @@ const config = createConfig({
 
 const queryClient = new QueryClient();
 
-function ProvidersInner({ children }: { children: ReactNode }) {
+export function Providers({ children }: { children: ReactNode }) {
   return (
     <DynamicContextProvider
       settings={{
-        environmentId: "YOUR_DYNAMIC_ENVIRONMENT_ID",
-        walletConnectors: [],
+        environmentId: process.env.NEXT_PUBLIC_DYNAMIC_ID || "",
+        walletConnectors: [EthereumWalletConnectors],
       }}
     >
-      <DynamicWagmiConnector wagmiConfig={config}>
+      <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
-          {children}
-        </QueryClientProvider>
-      </DynamicWagmiConnector>
-    </DynamicContextProvider>
-  );
-}
-
-export function Providers({ children }: { children: ReactNode }) {
-  const [queryClient] = useState(() => new QueryClient());
-
-  return (
-    <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
-        <DynamicContextProvider
-          settings={{
-            environmentId: "NEXT_PUBLIC_DYNAMIC_ID",
-            walletConnectors: [],
-          }}
-        >
-          <DynamicWagmiConnector wagmiConfig={config}>
+          <DynamicWagmiConnector>
             {children}
           </DynamicWagmiConnector>
-        </DynamicContextProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+        </QueryClientProvider>
+      </WagmiProvider>
+    </DynamicContextProvider>
   );
 }
 
