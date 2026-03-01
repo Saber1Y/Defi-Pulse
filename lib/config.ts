@@ -1,6 +1,6 @@
 import { http, createConfig } from 'wagmi'
 import { mainnet } from 'wagmi/chains'
-import { injected } from 'wagmi/connectors'
+import { DynamicWagmiConnector } from '@dynamic-labs/wagmi-connector'
 import type { Chain } from 'viem'
 
 export const somnia: Chain = {
@@ -29,7 +29,7 @@ export const somnia: Chain = {
 
 export const config = createConfig({
   chains: [mainnet, somnia] as const,
-  connectors: [injected()],
+  connectors: [DynamicWagmiConnector()],
   transports: {
     [mainnet.id]: http(),
     [somnia.id]: http(),
