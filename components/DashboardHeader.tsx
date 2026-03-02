@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import { ConnectWallet } from './ConnectWallet'
-import { Search, Bell } from 'lucide-react'
+import { ConnectWallet } from "./ConnectWallet";
+import { Search, Bell } from "lucide-react";
 
 export function DashboardHeader() {
   return (
@@ -14,25 +14,45 @@ export function DashboardHeader() {
             </div>
             DeFi Pulse
           </h1>
-          
+
           <nav className="hidden sm:flex items-center gap-6 text-sm">
-            <a href="#" className="text-text-secondary hover:text-foreground transition">Explore</a>
-            <a href="#" className="text-accent-cyan border-b-2 border-accent-cyan pb-1">Dashboard</a>
-            <a href="#" className="text-text-secondary hover:text-foreground transition">Alerts</a>
-            <a href="#" className="text-text-secondary hover:text-foreground transition">Docs</a>
+            <a
+              href="#"
+              className="text-text-secondary hover:text-foreground transition"
+            >
+              Explore
+            </a>
+            <a
+              href="#"
+              className="text-accent-cyan border-b-2 border-accent-cyan pb-1"
+            >
+              Dashboard
+            </a>
+            <a
+              href="#"
+              className="text-text-secondary hover:text-foreground transition"
+            >
+              Alerts
+            </a>
+            <a
+              href="#"
+              className="text-text-secondary hover:text-foreground transition"
+            >
+              Docs
+            </a>
           </nav>
         </div>
 
         <div className="flex items-center gap-4">
           <div className="hidden md:flex items-center bg-zinc-900 rounded-lg px-4 py-2 gap-2 border border-card-border">
             <Search size={18} className="text-text-tertiary" />
-            <input 
-              type="text" 
-              placeholder="Search protocols, pairs, or assets" 
+            <input
+              type="text"
+              placeholder="Search protocols, pairs, or assets"
               className="bg-transparent text-sm text-foreground placeholder-text-tertiary focus:outline-none w-64"
             />
           </div>
-          
+
           <button className="p-2 hover:bg-zinc-900 rounded-lg transition">
             <Bell size={20} className="text-text-secondary" />
           </button>
@@ -41,5 +61,5 @@ export function DashboardHeader() {
         </div>
       </div>
     </header>
-  )
+  );
 }

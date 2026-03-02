@@ -1,48 +1,48 @@
-'use client'
+"use client";
 
-import { Bell } from 'lucide-react'
+import { Bell } from "lucide-react";
 
 interface Asset {
-  id: string
-  name: string
-  symbol: string
-  icon: string
-  balance: string
-  value: string
-  supplyAPY: string
-  borrowAPY: string
-  status: 'stable' | 'warning' | 'at-risk'
+  id: string;
+  name: string;
+  symbol: string;
+  icon: string;
+  balance: string;
+  value: string;
+  supplyAPY: string;
+  borrowAPY: string;
+  status: "stable" | "warning" | "at-risk";
 }
 
 interface PositionTrackingTableProps {
-  assets: Asset[]
+  assets: Asset[];
 }
 
 const getStatusColor = (status: string) => {
   switch (status) {
-    case 'stable':
-      return 'bg-accent-green/10 text-accent-green border-accent-green/30'
-    case 'warning':
-      return 'bg-accent-yellow/10 text-accent-yellow border-accent-yellow/30'
-    case 'at-risk':
-      return 'bg-accent-red/10 text-accent-red border-accent-red/30'
+    case "stable":
+      return "bg-accent-green/10 text-accent-green border-accent-green/30";
+    case "warning":
+      return "bg-accent-yellow/10 text-accent-yellow border-accent-yellow/30";
+    case "at-risk":
+      return "bg-accent-red/10 text-accent-red border-accent-red/30";
     default:
-      return ''
+      return "";
   }
-}
+};
 
 const getStatusLabel = (status: string) => {
   switch (status) {
-    case 'stable':
-      return 'STABLE'
-    case 'warning':
-      return 'WARNING'
-    case 'at-risk':
-      return 'AT RISK'
+    case "stable":
+      return "STABLE";
+    case "warning":
+      return "WARNING";
+    case "at-risk":
+      return "AT RISK";
     default:
-      return ''
+      return "";
   }
-}
+};
 
 export function PositionTrackingTable({ assets }: PositionTrackingTableProps) {
   return (
@@ -59,25 +59,44 @@ export function PositionTrackingTable({ assets }: PositionTrackingTableProps) {
         <table className="w-full">
           <thead>
             <tr className="border-b border-card-border bg-zinc-900/50">
-              <th className="px-6 py-4 text-left text-sm font-semibold text-text-secondary">ASSET</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-text-secondary">BALANCE</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-text-secondary">VALUE</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-text-secondary">SUPPLY APY</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-text-secondary">BORROW APY</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-text-secondary">STATUS</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-text-secondary">
+                ASSET
+              </th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-text-secondary">
+                BALANCE
+              </th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-text-secondary">
+                VALUE
+              </th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-text-secondary">
+                SUPPLY APY
+              </th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-text-secondary">
+                BORROW APY
+              </th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-text-secondary">
+                STATUS
+              </th>
             </tr>
           </thead>
           <tbody>
             {assets.map((asset, idx) => (
-              <tr key={asset.id} className={`border-b border-card-border/50 hover:bg-zinc-900/30 transition ${idx === assets.length - 1 ? 'border-b-0' : ''}`}>
+              <tr
+                key={asset.id}
+                className={`border-b border-card-border/50 hover:bg-zinc-900/30 transition ${idx === assets.length - 1 ? "border-b-0" : ""}`}
+              >
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-sm font-bold">
                       {asset.icon}
                     </div>
                     <div>
-                      <p className="font-medium text-foreground">{asset.name}</p>
-                      <p className="text-xs text-text-tertiary">{asset.symbol}</p>
+                      <p className="font-medium text-foreground">
+                        {asset.name}
+                      </p>
+                      <p className="text-xs text-text-tertiary">
+                        {asset.symbol}
+                      </p>
                     </div>
                   </div>
                 </td>
@@ -88,13 +107,19 @@ export function PositionTrackingTable({ assets }: PositionTrackingTableProps) {
                   <p className="text-foreground font-medium">{asset.value}</p>
                 </td>
                 <td className="px-6 py-4">
-                  <p className="text-accent-green font-semibold">{asset.supplyAPY}</p>
+                  <p className="text-accent-green font-semibold">
+                    {asset.supplyAPY}
+                  </p>
                 </td>
                 <td className="px-6 py-4">
-                  <p className="text-accent-cyan font-semibold">{asset.borrowAPY}</p>
+                  <p className="text-accent-cyan font-semibold">
+                    {asset.borrowAPY}
+                  </p>
                 </td>
                 <td className="px-6 py-4">
-                  <span className={`px-3 py-1 rounded text-xs font-semibold border ${getStatusColor(asset.status)}`}>
+                  <span
+                    className={`px-3 py-1 rounded text-xs font-semibold border ${getStatusColor(asset.status)}`}
+                  >
                     {getStatusLabel(asset.status)}
                   </span>
                 </td>
@@ -104,5 +129,5 @@ export function PositionTrackingTable({ assets }: PositionTrackingTableProps) {
         </table>
       </div>
     </div>
-  )
+  );
 }
