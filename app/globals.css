@@ -1,8 +1,17 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0f1318;
+  --foreground: #ffffff;
+  --card-bg: #1a1f2e;
+  --card-border: #2a2f3e;
+  --accent-cyan: #00d9ff;
+  --accent-purple: #9d4edd;
+  --accent-yellow: #ffd60a;
+  --accent-red: #e63946;
+  --accent-green: #06a77d;
+  --text-secondary: #a0a9b8;
+  --text-tertiary: #6b7280;
 }
 
 @theme inline {
@@ -14,8 +23,8 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #0f1318;
+    --foreground: #ffffff;
   }
 }
 
@@ -23,4 +32,50 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Custom utility classes */
+.bg-card {
+  background-color: var(--card-bg);
+  border-color: var(--card-border);
+}
+
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+.text-tertiary {
+  color: var(--text-tertiary);
+}
+
+.accent-cyan {
+  color: var(--accent-cyan);
+}
+
+.accent-purple {
+  color: var(--accent-purple);
+}
+
+.accent-yellow {
+  color: var(--accent-yellow);
+}
+
+.accent-red {
+  color: var(--accent-red);
+}
+
+.accent-green {
+  color: var(--accent-green);
+}
+
+.bg-accent-cyan {
+  background-color: var(--accent-cyan);
+}
+
+.bg-accent-red {
+  background-color: var(--accent-red);
+}
+
+.border-card {
+  border-color: var(--card-border);
 }
