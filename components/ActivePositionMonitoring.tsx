@@ -12,10 +12,12 @@ interface Position {
 
 interface ActivePositionMonitoringProps {
   position: Position;
+  viewedAddress?: string;
 }
 
 export function ActivePositionMonitoring({
   position,
+  viewedAddress,
 }: ActivePositionMonitoringProps) {
   const [displayHF, setDisplayHF] = useState(0);
 
@@ -45,7 +47,14 @@ export function ActivePositionMonitoring({
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Active Position Monitoring</h2>
+      <div className="flex items-center gap-4">
+        <h2 className="text-2xl font-bold">Active Position Monitoring</h2>
+        {viewedAddress && (
+          <span className="text-sm text-accent-cyan bg-accent-cyan/10 px-2 py-1 rounded">
+            Viewing: {viewedAddress.slice(0, 6)}...{viewedAddress.slice(-4)}
+          </span>
+        )}
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Health Factor Gauge */}

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { AlertBanner } from "@/components/AlertBanner";
 import { AlertsPanel } from "@/components/AlertsPanel";
@@ -98,9 +99,23 @@ const mockAssets = [
 ];
 
 export default function Home() {
+  const [viewedAddress, setViewedAddress] = useState<string>("");
+
+  const handleViewAddress = (address: string) => {
+    setViewedAddress(address);
+  };
+
+  const handleClearView = () => {
+    setViewedAddress("");
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <DashboardHeader />
+      <DashboardHeader
+        viewedAddress={viewedAddress}
+        onViewAddress={handleViewAddress}
+        onClearView={handleClearView}
+      />
 
       <main className="mx-auto max-w-7xl px-4 py-6">
         {/* Critical Alert */}
@@ -124,11 +139,11 @@ export default function Home() {
         </div>
 
         {/* Active Position Monitoring */}
-        <ActivePositionMonitoring position={mockPosition} />
+        <ActivePositionMonitoring position={mockPosition} viewedAddress={viewedAddress} />
 
         {/* Position Tracking Table */}
         <div className="mt-12">
-          <PositionTrackingTable assets={mockAssets} />
+          <PositionTrackingTable assets={mockAssets} viewedAddress={viewedAddress} />
         </div>
 
         {/* Footer */}

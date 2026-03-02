@@ -16,6 +16,7 @@ interface Asset {
 
 interface PositionTrackingTableProps {
   assets: Asset[];
+  viewedAddress?: string;
 }
 
 const getStatusColor = (status: string) => {
@@ -44,11 +45,18 @@ const getStatusLabel = (status: string) => {
   }
 };
 
-export function PositionTrackingTable({ assets }: PositionTrackingTableProps) {
+export function PositionTrackingTable({ assets, viewedAddress }: PositionTrackingTableProps) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Position Status Tracking</h2>
+        <div className="flex items-center gap-4">
+          <h2 className="text-2xl font-bold">Position Status Tracking</h2>
+          {viewedAddress && (
+            <span className="text-sm text-accent-cyan bg-accent-cyan/10 px-2 py-1 rounded">
+              Viewing: {viewedAddress.slice(0, 6)}...{viewedAddress.slice(-4)}
+            </span>
+          )}
+        </div>
         <button className="flex items-center gap-2 text-accent-cyan text-sm font-semibold hover:text-accent-cyan/80 transition">
           <Bell size={16} />
           Alert Notifications Enabled
