@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DeFi Pulse
 
-## Getting Started
+Real-time DeFi dashboard on Somnia — combining personal margin tracking with global protocol analytics. Built with Somnia Reactivity SDK for instant, on-chain updates.
 
-First, run the development server:
+## Overview
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+DeFi Pulse is a reactive dashboard that lets users:
+- **Track personal positions** across lending protocols (supplied, borrowed, health factor)
+- **Monitor protocol analytics** in real-time (TVL, volume, active users)
+- **Receive alerts** when health factor drops (warning at 1.5, critical at 1.1)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Tech Stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Layer | Technology |
+|-------|------------|
+| Chain | Somnia Testnet (Chain ID: 50312) |
+| Frontend | Next.js 16 + React 19 + TypeScript |
+| Styling | Tailwind CSS |
+| Wallet | Dynamic + wagmi |
+| Reactivity | @somnia-chain/reactivity |
+| Data | viem (direct contract calls) |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Features
 
-## Learn More
+### Personal Margin Dashboard
+- One-click wallet connect (Dynamic)
+- Total supplied / borrowed in USD
+- Net worth calculation
+- Health factor with real-time alerts
+- Per-asset breakdown (supply/borrow amounts, collateral status, APY)
 
-To learn more about Next.js, take a look at the following resources:
+### Protocol Pulse
+- Combined TVL across tracked protocols
+- 24h volume
+- Active user count
+- Per-protocol supply/borrow APY ranges
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Real-time Updates
+- No polling — uses Somnia Reactivity SDK
+- Instant UI updates when blocks produce new data
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Somnia Testnet Details
+
+- **Chain ID**: 50312
+- **RPC**: https://dream-rpc.somnia.network/
+- **Explorer**: https://shannon-explorer.somnia.network/
+- **Symbol**: STT (Somnia Test Token)
+
+## License
+
+MIT
