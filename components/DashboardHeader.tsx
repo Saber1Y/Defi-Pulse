@@ -1,19 +1,27 @@
 "use client";
 
 import { ConnectWallet } from "./ConnectWallet";
-import { Search, Bell, X } from "lucide-react";
+import { Search, Bell, X, Menu, PanelLeftClose, PanelLeft } from "lucide-react";
 import { useState } from "react";
 
 interface DashboardHeaderProps {
   viewedAddress: string;
   onViewAddress: (address: string) => void;
   onClearView: () => void;
+  onToggleAlerts: () => void;
+  alertsOpen: boolean;
+  onMenuToggle?: () => void;
+  sidebarOpen?: boolean;
 }
 
 export function DashboardHeader({
   viewedAddress,
   onViewAddress,
   onClearView,
+  onToggleAlerts,
+  alertsOpen,
+  onMenuToggle,
+  sidebarOpen,
 }: DashboardHeaderProps) {
   const [addressInput, setAddressInput] = useState("");
   const [isSearching, setIsSearching] = useState(false);
@@ -45,6 +53,19 @@ export function DashboardHeader({
         </div>
 
         <div className="flex items-center gap-4">
+          {onMenuToggle && (
+            <button 
+              onClick={onMenuToggle}
+              className="p-2 hover:bg-zinc-900 rounded-lg transition"
+              title={sidebarOpen ? "Close sidebar" : "Open sidebar"}
+            >
+              {sidebarOpen ? (
+                <PanelLeftClose size={20} />
+              ) : (
+                <PanelLeft size={20} />
+              )}
+            </button>
+          )}
           {viewedAddress ? (
             <div className="flex items-center gap-2 bg-accent-cyan/10 border border-accent-cyan/30 rounded-lg px-3 py-2">
               <span className="text-sm text-accent-cyan">
@@ -93,8 +114,11 @@ export function DashboardHeader({
             </button>
           )}
 
-          <button className="p-2 hover:bg-zinc-900 rounded-lg transition">
-            <Bell size={20} className="text-text-secondary" />
+          <button 
+            onClick={onToggleAlerts}
+            className={`p-2 hover:bg-zinc-900 rounded-lg transition relative ${alertsOpen ? 'bg-zinc-900' : ''}`}
+          >
+            <Bell size={20} className={alertsOpen ? "text-accent-cyan" : "text-text-secondary"} />
           </button>
 
           <ConnectWallet />

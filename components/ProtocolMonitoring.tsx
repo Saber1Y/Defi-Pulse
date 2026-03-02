@@ -10,6 +10,7 @@ import {
   LineChart,
   Line,
 } from "recharts";
+import { LuCylinder } from "react-icons/lu";
 
 interface ProtocolMetrics {
   totalTVL: string;
@@ -35,11 +36,11 @@ export function ProtocolMonitoring({ metrics }: ProtocolMonitoringProps) {
         <div className="bg-card border border-card-border rounded-xl p-6">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="text-text-secondary text-sm mb-2">Total TVL</p>
+              <div className="flex justify-between items-center gap-1 mb-1 w-full">
+                <p className="text-text-secondary text-sm mb-2">Total TVL</p>
+                <LuCylinder size={16} className="text-accent-cyan" />
+              </div>
               <p className="text-4xl font-bold">{metrics.totalTVL}</p>
-            </div>
-            <div className="w-10 h-10 bg-accent-cyan/10 rounded-lg flex items-center justify-center">
-              <div className="w-2 h-2 bg-accent-cyan rounded-full"></div>
             </div>
           </div>
           <p className="text-accent-cyan text-sm">
@@ -52,11 +53,11 @@ export function ProtocolMonitoring({ metrics }: ProtocolMonitoringProps) {
         <div className="bg-card border border-card-border rounded-xl p-6">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="text-text-secondary text-sm mb-2">24h Volume</p>
+              <div className="flex justify-between items-center gap-1 mb-1 w-full">
+                <p className="text-text-secondary text-sm mb-2">24h Volume</p>
+                <LuCylinder size={16} className="text-accent-cyan" />
+              </div>
               <p className="text-4xl font-bold">{metrics.volume24h}</p>
-            </div>
-            <div className="w-10 h-10 bg-accent-cyan/10 rounded-lg flex items-center justify-center">
-              <div className="w-2 h-2 bg-accent-cyan rounded-full"></div>
             </div>
           </div>
           <p className="text-accent-cyan text-sm">
