@@ -49,6 +49,16 @@ DeFi Pulse is a reactive dashboard that lets users:
 - **Explorer**: https://shannon-explorer.somnia.network/
 - **Symbol**: STT (Somnia Test Token)
 
+
+| Feature | Without Reactivity | With Reactivity |
+|---------|-------------------|-----------------|
+| Dashboard | Poll for alerts every 10s | Push: instant critical alert |
+| Portfolio | Poll your balance | Push: instant when you supply/borrow |
+| Analytics | Poll TVL every 30s | Push: instant when TVL changes |
+| Watch Address | Poll for updates | Push: see their moves live |
+| Whale Trackers | Poll whale positions | Push: whale moves in real-time |
+| Alerts | Poll for triggers | Push: instant notification |
+
 ## License
 
 MIT

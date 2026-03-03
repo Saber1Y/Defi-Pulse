@@ -4,52 +4,8 @@ import { ActivePositionMonitoring } from "@/components/ActivePositionMonitoring"
 import { PositionTrackingTable } from "@/components/PositionTrackingTable";
 
 interface PortfolioViewProps {
-  viewedAddress?: string;
+  viewedAddress?: string | null;
 }
-
-const mockPosition = {
-  healthFactor: 1.85,
-  totalSupply: "$24,102.50",
-  totalBorrow: "$8,450.00",
-  netAPY: "+4.12%",
-  borrowPowerUsed: "35.00%",
-};
-
-const mockAssets = [
-  {
-    id: "eth",
-    name: "Ethereum",
-    symbol: "ETH",
-    icon: "Ξ",
-    balance: "4.50 ETH",
-    value: "$15,750.00",
-    supplyAPY: "3.25%",
-    borrowAPY: "5.10%",
-    status: "stable" as const,
-  },
-  {
-    id: "usdc",
-    name: "USDC Coin",
-    symbol: "USDC",
-    icon: "$",
-    balance: "8,392.50 USDC",
-    value: "$8,352.50",
-    supplyAPY: "5.82%",
-    borrowAPY: "7.15%",
-    status: "warning" as const,
-  },
-  {
-    id: "stt",
-    name: "Somnia Token",
-    symbol: "STT",
-    icon: "◆",
-    balance: "12,000.00 STT",
-    value: "$1,440.00",
-    supplyAPY: "14.0%",
-    borrowAPY: "18.2%",
-    status: "at-risk" as const,
-  },
-];
 
 export function PortfolioView({ viewedAddress }: PortfolioViewProps) {
   return (
@@ -63,11 +19,38 @@ export function PortfolioView({ viewedAddress }: PortfolioViewProps) {
         </p>
       </div>
 
-      <ActivePositionMonitoring position={mockPosition} viewedAddress={viewedAddress} />
+      {!viewedAddress ? (
+        <div className="bg-accent-yellow/10 border border-accent-yellow/30 rounded-xl p-6 text-center">
+          <p className="text-accent-yellow font-medium">Connect your wallet or use Watch Address</p>
+          <p className="text-text-secondary text-sm mt-2">
+            Portfolio data will be fetched from Tokos lending protocol
+          </p>
+        </div>
+      ) : (
+        <>
+          <ActivePositionMonitoring 
+            position={{
+              healthFactor: 0,
+              totalSupply: "--",
+              totalBorrow: "--",
+              netAPY: "--",
+              borrowPowerUsed: "--",
+            }} 
+            viewedAddress={viewedAddress} 
+          />
 
-      <div className="mt-12">
-        <PositionTrackingTable assets={mockAssets} viewedAddress={viewedAddress} />
-      </div>
+          <div className="mt-12">
+            <div className="bg-card border border-card-border rounded-xl p-6 text-center">
+              <p className="text-text-secondary">
+                Position data loading from blockchain...
+              </p>
+              <p className="text-text-tertiary text-sm mt-2">
+                Address: {viewedAddress}
+              </p>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

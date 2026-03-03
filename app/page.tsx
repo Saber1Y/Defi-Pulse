@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Menu } from "lucide-react";
 import { Sidebar, MobileSidebar, PageView } from "@/components/Sidebar";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { DashboardView } from "@/components/views/DashboardView";
@@ -10,6 +9,7 @@ import { AnalyticsView } from "@/components/views/AnalyticsView";
 import { WatchAddressView } from "@/components/views/WatchAddressView";
 import { WhaleTrackersView } from "@/components/views/WhaleTrackersView";
 import { AlertsView } from "@/components/views/AlertsView";
+import { useWallet } from "@/lib/hooks/useWallet";
 
 export default function Home() {
   const [currentView, setCurrentView] = useState<PageView>("dashboard");
@@ -17,6 +17,8 @@ export default function Home() {
   const [alertsOpen, setAlertsOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  
+  const { address: walletAddress, isConnected } = useWallet();
 
   const handleViewAddress = (address: string) => {
     setViewedAddress(address);
@@ -31,12 +33,14 @@ export default function Home() {
     setAlertsOpen((prev) => !prev);
   };
 
+  const displayAddress = viewedAddress || walletAddress || undefined;
+
   const renderView = () => {
     switch (currentView) {
       case "dashboard":
-        return <DashboardView />;
+        return <DashboardView walletAddress={walletAddress} />;
       case "portfolio":
-        return <PortfolioView viewedAddress={viewedAddress} />;
+        return <PortfolioView viewedAddress={displayAddress} />;
       case "analytics":
         return <AnalyticsView />;
       case "watch":
@@ -52,7 +56,7 @@ export default function Home() {
       case "alerts":
         return <AlertsView />;
       default:
-        return <DashboardView />;
+        return <DashboardView walletAddress={walletAddress} />;
     }
   };
 
@@ -75,10 +79,19 @@ export default function Home() {
           alertsOpen={alertsOpen}
           onMenuToggle={() => setSidebarOpen(!sidebarOpen)}
           sidebarOpen={sidebarOpen}
+          isWalletConnected={isConnected}
         />
 
         <main className="flex-1 p-6 overflow-auto">
           <div className="max-w-7xl mx-auto">
+            {!isConnected && currentView !== "watch" && currentView !== "whales" && currentView !== "analytics" && (
+              <div className="bg-accent-cyan/10 border border-accent-cyan/30 rounded-xl p-4 mb-6">
+                <p className="text-accent-cyan text-sm">
+                  💡 Connect your wallet to see your portfolio data. Use "Watch Address" to view other addresses.
+                </p>
+              </div>
+            )}
+
             {renderView()}
 
             <footer className="mt-16 flex flex-col md:flex-row items-center justify-between text-text-tertiary text-xs py-8 border-t border-card-border">

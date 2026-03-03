@@ -12,6 +12,7 @@ interface DashboardHeaderProps {
   alertsOpen: boolean;
   onMenuToggle?: () => void;
   sidebarOpen?: boolean;
+  isWalletConnected?: boolean;
 }
 
 export function DashboardHeader({
@@ -22,6 +23,7 @@ export function DashboardHeader({
   alertsOpen,
   onMenuToggle,
   sidebarOpen,
+  isWalletConnected,
 }: DashboardHeaderProps) {
   const [addressInput, setAddressInput] = useState("");
   const [isSearching, setIsSearching] = useState(false);
