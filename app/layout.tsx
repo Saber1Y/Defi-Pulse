@@ -1,17 +1,15 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Bree_Serif } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/lib/providers";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+
+const breeSerif = Bree_Serif({
+  variable: "--font-bree-serif",
   subsets: ["latin"],
+  weight: "400",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "DeFi Pulse",
@@ -26,7 +24,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${breeSerif.variable}  antialiased`}
       >
         <Providers>{children}</Providers>
       </body>
