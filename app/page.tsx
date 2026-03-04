@@ -52,7 +52,7 @@ export default function Home() {
           />
         );
       case "whales":
-        return <WhaleTrackersView />;
+        return <WhaleTrackersView walletAddress={walletAddress} />;
       case "alerts":
         return <AlertsView />;
       default:

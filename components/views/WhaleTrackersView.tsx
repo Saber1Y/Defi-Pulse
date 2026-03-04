@@ -1,67 +1,382 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Eye } from "lucide-react";
+import { TrendingUp, TrendingDown, Plus, X, Zap } from "lucide-react";
+import { useReactivityWhales } from "@/lib/hooks/useReactivityWhales";
 
-export function WhaleTrackersView() {
-  const [watching, setWatching] = useState<string[]>([]);
+interface WhaleTrackersViewProps {
+  walletAddress?: string | null;
+}
 
-  const toggleWatch = (address: string) => {
-    setWatching((prev) => 
-      prev.includes(address) 
-        ? prev.filter((a) => a !== address)
-        : [...prev, address]
-    );
+export function WhaleTrackersView({ walletAddress }: WhaleTrackersViewProps) {
+  const [customAddress, setCustomAddress] = useState("");
+  const [addError, setAddError] = useState<string | null>(null);
+
+  // Use connected wallet as default if available
+  const initialAddresses = walletAddress ? [walletAddress] : [];
+
+  const {
+    whales,
+    isLoading,
+    error,
+    subscribedEvents,
+    addWhale,
+    removeWhale,
+    refresh,
+  } = useReactivityWhales(initialAddresses);
+
+  const handleAddWhale = async () => {
+    if (!customAddress.startsWith("0x") || customAddress.length !== 42) {
+      setAddError("Invalid Ethereum address");
+      return;
+    }
+    await addWhale(customAddress.toLowerCase());
+    setCustomAddress("");
+    setAddError(null);
   };
+
+  const getStatus = (healthFactor: number | undefined | null) => {
+    if (!healthFactor || healthFactor === 0)
+      return { label: "No Position", color: "text-text-tertiary" };
+    if (healthFactor >= 2) return { label: "Safe", color: "text-accent-green" };
+    if (healthFactor >= 1.5)
+      return { label: "Warning", color: "text-accent-yellow" };
+    return { label: "Critical", color: "text-accent-red" };
+  };
+
+  const formatUSD = (value: number | undefined | null) => {
+    if (!value || value === 0) return "--";
+    return `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+
+  const formatTime = (date: Date) => date.toLocaleTimeString();
 
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold mb-2">Whale Trackers</h2>
         <p className="text-text-secondary">
-          Monitor large positions and get real-time alerts
+          Monitor any address with real-time updates via Somnia Reactivity SDK
         </p>
       </div>
 
-      <div className="bg-accent-cyan/10 border border-accent-cyan/30 rounded-xl p-6">
-        <p className="text-accent-cyan font-medium">Whale Trackers Coming Soon</p>
-        <p className="text-text-secondary text-sm mt-2">
-          Watch any address and get real-time updates when they supply/borrow
-        </p>
+      {/* Reactivity Status Banner */}
+      <div className="bg-accent-cyan/10 border border-accent-cyan/30 rounded-xl p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Zap size={24} className="text-accent-cyan" />
+            <div>
+              <p className="text-accent-cyan font-medium">
+                Powered by Somnia Reactivity SDK
+              </p>
+              <p className="text-text-secondary text-sm">
+                Instant push notifications when watched addresses make moves
+              </p>
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="text-text-tertiary text-xs">Events received</p>
+            <p className="text-accent-cyan font-bold text-xl">
+              {subscribedEvents}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Add Whale Input */}
+      <div className="bg-card border border-card-border rounded-xl p-6">
+        <h3 className="text-lg font-semibold mb-4">Add Address to Watch</h3>
+        <div className="flex gap-3">
+          <input
+            type="text"
+            placeholder="0x..."
+            value={customAddress}
+            onChange={(e) => setCustomAddress(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleAddWhale()}
+            className="flex-1 bg-zinc-900 border border-card-border rounded-lg px-4 py-2 text-foreground placeholder-text-tertiary focus:outline-none focus:border-accent-cyan font-mono text-sm"
+          />
+          <button
+            onClick={handleAddWhale}
+            disabled={!customAddress}
+            className="px-4 py-2 bg-accent-cyan text-black font-semibold rounded-lg hover:bg-accent-cyan/90 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          >
+            <Plus size={18} />
+            Add
+          </button>
+        </div>
+        {addError && <p className="text-accent-red text-sm mt-2">{addError}</p>}
         <p className="text-text-tertiary text-xs mt-2">
-          Powered by Somnia Reactivity SDK - no polling needed
+          Enter any wallet address - you&apos;ll get instant updates when they
+          interact with Tokos
         </p>
       </div>
+
+      {isLoading && whales.size === 0 && (
+        <div className="bg-card border border-card-border rounded-xl p-8 flex items-center gap-3 justify-center">
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-accent-cyan"></div>
+          <p className="text-text-secondary">Connecting to Reactivity...</p>
+        </div>
+      )}
+
+      {error && (
+        <div className="bg-accent-red/10 border border-accent-red/30 rounded-xl p-4">
+          <p className="text-accent-red font-medium">Error: {error}</p>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Tracked Addresses */}
         <div className="bg-card border border-card-border rounded-xl p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">Tracked Whales</h3>
-            <button className="flex items-center gap-2 px-3 py-1.5 bg-accent-cyan/10 text-accent-cyan rounded-lg text-sm hover:bg-accent-cyan/20 transition">
-              <Plus size={16} />
-              Add Whale
+            <h3 className="text-lg font-semibold">
+              Tracked Addresses ({whales.size})
+            </h3>
+            <button
+              onClick={refresh}
+              disabled={isLoading}
+              className="flex items-center gap-2 px-3 py-1.5 bg-accent-cyan/10 text-accent-cyan rounded-lg text-sm hover:bg-accent-cyan/20 transition disabled:opacity-50"
+            >
+              {isLoading ? "Loading..." : "Refresh"}
             </button>
           </div>
 
-          <div className="text-center py-8 text-text-secondary">
-            <p>No whales tracked yet</p>
-            <p className="text-sm text-text-tertiary mt-2">Add whale addresses to monitor</p>
+          <div className="space-y-3">
+            {Array.from(whales.values()).map((whale) => {
+              const status = getStatus(whale.position?.healthFactor);
+              return (
+                <div
+                  key={whale.address}
+                  className={`flex items-center justify-between p-4 rounded-lg transition ${
+                    whale.change === "worsened"
+                      ? "bg-accent-red/10 border border-accent-red/30"
+                      : whale.change === "improved"
+                        ? "bg-accent-green/10 border border-accent-green/30"
+                        : whale.change === "new"
+                          ? "bg-accent-cyan/10 border border-accent-cyan/30"
+                          : "bg-zinc-900/50"
+                  }`}
+                >
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="font-mono text-sm">
+                        {whale.address.slice(0, 10)}...{whale.address.slice(-8)}
+                      </p>
+                      {whale.change === "worsened" && (
+                        <TrendingDown size={14} className="text-accent-red" />
+                      )}
+                      {whale.change === "improved" && (
+                        <TrendingUp size={14} className="text-accent-green" />
+                      )}
+                    </div>
+                    <p className={`text-xs mt-1 ${status.color}`}>
+                      HF: {whale.position?.healthFactor?.toFixed(2) || "--"} •{" "}
+                      {formatUSD(whale.position?.totalCollateralUSD)}
+                    </p>
+                    <p className="text-text-tertiary text-xs">
+                      {formatTime(whale.lastUpdated)}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`px-2 py-1 rounded text-xs font-semibold ${
+                        status.color === "text-accent-green"
+                          ? "bg-accent-green/10 text-accent-green"
+                          : status.color === "text-accent-yellow"
+                            ? "bg-accent-yellow/10 text-accent-yellow"
+                            : status.color === "text-accent-red"
+                              ? "bg-accent-red/10 text-accent-red"
+                              : "bg-zinc-800 text-text-tertiary"
+                      }`}
+                    >
+                      {status.label}
+                    </span>
+                    <button
+                      onClick={() => removeWhale(whale.address)}
+                      className="p-2 hover:bg-zinc-800 rounded-lg"
+                    >
+                      <X size={16} className="text-text-secondary" />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
           </div>
+
+          {whales.size === 0 && !isLoading && (
+            <div className="text-center py-8 text-text-secondary">
+              <p>No addresses tracked</p>
+              <p className="text-sm text-text-tertiary mt-2">
+                Add an address above
+              </p>
+            </div>
+          )}
         </div>
 
+        {/* Activity Feed */}
         <div className="bg-card border border-card-border rounded-xl p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">Live Activity</h3>
-            <span className="flex items-center gap-2 text-xs text-accent-green">
-              <span className="w-2 h-2 bg-accent-green rounded-full"></span>
-              Reactivity Ready
+            <h3 className="text-lg font-semibold">Live Activity Feed</h3>
+            <span className="flex items-center gap-2 text-xs text-accent-cyan">
+              <span className="w-2 h-2 bg-accent-cyan rounded-full animate-pulse"></span>
+              Real-time
             </span>
           </div>
 
-          <div className="text-center py-8 text-text-secondary">
-            <p>Activity feed will show real-time updates</p>
-            <p className="text-sm text-text-tertiary mt-2">Powered by push notifications</p>
+          <div className="space-y-3">
+            {Array.from(whales.values())
+              .filter((w) => w.change)
+              .slice(0, 8)
+              .map((whale) => (
+                <div
+                  key={`activity-${whale.address}`}
+                  className={`flex items-center justify-between p-3 rounded-lg ${
+                    whale.change === "worsened"
+                      ? "bg-accent-red/10"
+                      : whale.change === "improved"
+                        ? "bg-accent-green/10"
+                        : "bg-accent-cyan/10"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`p-2 rounded-lg ${
+                        whale.change === "worsened"
+                          ? "bg-accent-red/20"
+                          : whale.change === "improved"
+                            ? "bg-accent-green/20"
+                            : "bg-accent-cyan/20"
+                      }`}
+                    >
+                      {whale.change === "worsened" ? (
+                        <TrendingDown size={16} className="text-accent-red" />
+                      ) : whale.change === "improved" ? (
+                        <TrendingUp size={16} className="text-accent-green" />
+                      ) : (
+                        <Plus size={16} className="text-accent-cyan" />
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">
+                        {whale.change === "worsened" &&
+                          "Health Factor Decreased"}
+                        {whale.change === "improved" &&
+                          "Health Factor Increased"}
+                        {whale.change === "new" && "New Position"}
+                      </p>
+                      <p className="text-xs text-text-tertiary">
+                        {whale.address.slice(0, 8)}...{whale.address.slice(-6)}
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-xs text-text-tertiary">
+                    {formatTime(whale.lastUpdated)}
+                  </p>
+                </div>
+              ))}
           </div>
+
+          {Array.from(whales.values()).filter((w) => w.change).length === 0 && (
+            <div className="text-center py-8 text-text-secondary">
+              <p>No activity yet</p>
+              <p className="text-sm text-text-tertiary mt-2">
+                Activity will appear here in real-time
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Near Liquidation Table */}
+      <div className="bg-card border border-card-border rounded-xl p-6">
+        <h3 className="text-lg font-semibold mb-4">
+          Near Liquidation (HF &lt; 1.5)
+        </h3>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-card-border">
+                <th className="px-4 py-3 text-left text-sm font-semibold text-text-secondary">
+                  Address
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-text-secondary">
+                  Collateral
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-text-secondary">
+                  Debt
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-text-secondary">
+                  Health Factor
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-text-secondary">
+                  Status
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {Array.from(whales.values())
+                .filter(
+                  (w) =>
+                    w.position &&
+                    w.position.healthFactor > 0 &&
+                    w.position.healthFactor < 1.5,
+                )
+                .map((whale) => (
+                  <tr
+                    key={whale.address}
+                    className="border-b border-card-border/50"
+                  >
+                    <td className="px-4 py-3 font-mono text-sm">
+                      {whale.address.slice(0, 12)}...{whale.address.slice(-8)}
+                    </td>
+                    <td className="px-4 py-3">
+                      {formatUSD(whale.position?.totalCollateralUSD)}
+                    </td>
+                    <td className="px-4 py-3">
+                      {formatUSD(whale.position?.totalDebtUSD)}
+                    </td>
+                    <td className="px-4 py-3 font-bold">
+                      <span
+                        className={
+                          whale.position!.healthFactor < 1.1
+                            ? "text-accent-red"
+                            : "text-accent-yellow"
+                        }
+                      >
+                        {whale.position?.healthFactor.toFixed(2)}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`px-2 py-1 rounded text-xs font-semibold ${
+                          whale.position!.healthFactor < 1.1
+                            ? "bg-accent-red/10 text-accent-red"
+                            : "bg-accent-yellow/10 text-accent-yellow"
+                        }`}
+                      >
+                        {whale.position!.healthFactor < 1.1
+                          ? "CRITICAL"
+                          : "WARNING"}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              {Array.from(whales.values()).filter(
+                (w) =>
+                  w.position &&
+                  w.position.healthFactor > 0 &&
+                  w.position.healthFactor < 1.5,
+              ).length === 0 && (
+                <tr>
+                  <td
+                    colSpan={5}
+                    className="px-4 py-8 text-center text-text-secondary"
+                  >
+                    No accounts near liquidation
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
