@@ -13,7 +13,15 @@ export function WhaleTrackersView({ walletAddress }: WhaleTrackersViewProps) {
   const [addError, setAddError] = useState<string | null>(null);
 
   // Use connected wallet as default if available
-  const initialAddresses = walletAddress ? [walletAddress] : [];
+  const initialAddresses = walletAddress ? [walletAddress] : [
+    '0xa415bcad94286f59290d8e861008f00a13cb400',
+  ]
+
+  const exampleAddresses = [
+    { addr: '0xa415bcad94286f59290d8e861008f00a13cb400', label: 'Tokos Active User' },
+    { addr: '0x28530a47B3A2de8088378d8B3c30fA0b6c1EDa47', label: 'Tokos User' },
+    { addr: '0x9ba207c3cda7d7c57a5aa3c7d4d5a6bde2c723', label: 'Whale' },
+  ];
 
   const {
     whales,
@@ -37,11 +45,11 @@ export function WhaleTrackersView({ walletAddress }: WhaleTrackersViewProps) {
 
   const getStatus = (healthFactor: number | undefined | null) => {
     if (!healthFactor || healthFactor === 0)
-      return { label: "No Position", color: "text-text-tertiary" };
-    if (healthFactor >= 2) return { label: "Safe", color: "text-accent-green" };
+      return { label: "No Position", color: "text-text-tertiary", bg: "bg-zinc-800", border: "border-zinc-700" };
+    if (healthFactor >= 2) return { label: "Safe", color: "text-accent-green", bg: "bg-accent-green/20", border: "border-accent-green/30" };
     if (healthFactor >= 1.5)
-      return { label: "Warning", color: "text-accent-yellow" };
-    return { label: "Critical", color: "text-accent-red" };
+      return { label: "Warning", color: "text-accent-yellow", bg: "bg-accent-yellow/20", border: "border-accent-yellow/30" };
+    return { label: "Critical", color: "text-accent-red", bg: "bg-accent-red/20", border: "border-accent-red/30" };
   };
 
   const formatUSD = (value: number | undefined | null) => {
@@ -61,16 +69,20 @@ export function WhaleTrackersView({ walletAddress }: WhaleTrackersViewProps) {
       </div>
 
       {/* Reactivity Status Banner */}
-      <div className="bg-accent-cyan/10 border border-accent-cyan/30 rounded-xl p-4">
-        <div className="flex items-center justify-between">
+      <div className="bg-gradient-to-r from-accent-cyan/20 via-accent-cyan/10 to-transparent border border-accent-cyan/30 rounded-xl p-4 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-1 h-full bg-accent-cyan"></div>
+        <div className="absolute top-0 right-0 w-32 h-32 bg-accent-cyan/10 rounded-full blur-3xl"></div>
+        <div className="flex items-center justify-between relative z-10">
           <div className="flex items-center gap-3">
-            <Zap size={24} className="text-accent-cyan" />
+            <div className="p-2 bg-accent-cyan/20 rounded-lg">
+              <Zap size={24} className="text-accent-cyan" />
+            </div>
             <div>
-              <p className="text-accent-cyan font-medium">
-                Powered by Somnia Reactivity SDK
+              <p className="text-accent-cyan font-semibold text-lg">
+                ⚡ Powered by Somnia Reactivity SDK
               </p>
               <p className="text-text-secondary text-sm">
-                Instant push notifications when watched addresses make moves
+                Real-time updates without polling - instant push when data changes
               </p>
             </div>
           </div>
@@ -109,6 +121,23 @@ export function WhaleTrackersView({ walletAddress }: WhaleTrackersViewProps) {
           Enter any wallet address - you&apos;ll get instant updates when they
           interact with Tokos
         </p>
+        
+        {/* Example Addresses */}
+        <div className="mt-4 pt-4 border-t border-card-border">
+          <p className="text-text-tertiary text-xs mb-2">Try these addresses:</p>
+          <div className="flex flex-wrap gap-2">
+            {exampleAddresses.map((ex) => (
+              <button
+                key={ex.addr}
+                onClick={() => { setCustomAddress(ex.addr); }}
+                className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs text-text-secondary font-mono transition"
+                title={ex.label}
+              >
+                {ex.addr.slice(0, 10)}...{ex.addr.slice(-8)}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {isLoading && whales.size === 0 && (
@@ -177,17 +206,7 @@ export function WhaleTrackersView({ walletAddress }: WhaleTrackersViewProps) {
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span
-                      className={`px-2 py-1 rounded text-xs font-semibold ${
-                        status.color === "text-accent-green"
-                          ? "bg-accent-green/10 text-accent-green"
-                          : status.color === "text-accent-yellow"
-                            ? "bg-accent-yellow/10 text-accent-yellow"
-                            : status.color === "text-accent-red"
-                              ? "bg-accent-red/10 text-accent-red"
-                              : "bg-zinc-800 text-text-tertiary"
-                      }`}
-                    >
+                    <span className={`px-3 py-1.5 rounded-lg text-xs font-bold ${status.bg} ${status.color} border ${status.border}`}>
                       {status.label}
                     </span>
                     <button

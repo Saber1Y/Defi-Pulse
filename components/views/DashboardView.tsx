@@ -6,10 +6,33 @@ import { ProtocolMonitoring } from "@/components/ProtocolMonitoring";
 import { AlertsPanel } from "@/components/AlertsPanel";
 import { useBlockchainData } from "@/lib/hooks/useBlockchainData";
 import { getUserPosition } from "@/lib/contracts/tokos";
-import { Zap, Activity, Blocks } from "lucide-react";
+import { Zap, Activity, Blocks, RefreshCw } from "lucide-react";
 
 interface DashboardViewProps {
   walletAddress: string | null;
+}
+
+function AnimatedNumber({ value, label }: { value: string | number; label: string }) {
+  const [displayValue, setDisplayValue] = useState(value);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const prevValue = useRef(value);
+
+  useEffect(() => {
+    if (prevValue.current !== value) {
+      setIsAnimating(true);
+      setDisplayValue(value);
+      const timer = setTimeout(() => setIsAnimating(false), 300);
+      prevValue.current = value;
+      return () => clearTimeout(timer);
+    }
+  }, [value]);
+
+  return (
+    <div className={`transition-all duration-300 ${isAnimating ? 'scale-110 text-accent-cyan' : ''}`}>
+      <p className="text-text-tertiary text-xs">{label}</p>
+      <p className={`text-4xl font-bold font-mono ${isAnimating ? 'text-accent-cyan' : ''}`}>{displayValue}</p>
+    </div>
+  );
 }
 
 export function DashboardView({ walletAddress }: DashboardViewProps) {
@@ -93,30 +116,46 @@ export function DashboardView({ walletAddress }: DashboardViewProps) {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-card border border-card-border rounded-xl p-6">
-            <div className="flex items-center justify-between mb-4">
+          <div className="bg-card border border-card-border rounded-xl p-6 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-accent-cyan/5 to-transparent pointer-events-none"></div>
+            <div className="flex items-center justify-between mb-4 relative z-10">
               <div className="flex items-center gap-2">
-                <Blocks size={20} className="text-accent-cyan" />
-                <p className="text-text-secondary">Current Block</p>
+                <div className="p-2 bg-accent-cyan/20 rounded-lg">
+                  <Blocks size={20} className="text-accent-cyan" />
+                </div>
+                <p className="text-text-secondary font-medium">Current Block</p>
               </div>
-              <span className="flex items-center gap-2 text-xs text-accent-green">
+              <span className="flex items-center gap-2 text-xs text-accent-green bg-accent-green/10 px-3 py-1 rounded-full">
                 <span className="w-2 h-2 bg-accent-green rounded-full animate-pulse"></span>
                 Live
               </span>
             </div>
-            <p className="text-4xl font-bold text-accent-cyan">
-              #{blockchainData?.blockNumber?.toString() || "--"}
-            </p>
-            <p className="text-text-tertiary text-sm mt-2">
-              Gas: {blockchainData?.gasPrice ? formatETH(blockchainData.gasPrice.toString()) : "--"} Gwei
-            </p>
+            <div className="relative z-10">
+              <AnimatedNumber 
+                value={`#${blockchainData?.blockNumber?.toString() || "--"}`} 
+                label="Block Height"
+              />
+            </div>
+            <div className="flex items-center gap-4 mt-4 pt-4 border-t border-card-border relative z-10">
+              <div>
+                <p className="text-text-tertiary text-xs">Gas Price</p>
+                <p className="text-lg font-bold text-accent-cyan">{blockchainData?.gasPrice ? formatETH(blockchainData.gasPrice.toString()) : "--"} Gwei</p>
+              </div>
+              <div className="h-8 w-px bg-card-border"></div>
+              <div>
+                <p className="text-text-tertiary text-xs">Network</p>
+                <p className="text-lg font-bold">Somnia</p>
+              </div>
+            </div>
           </div>
 
           <div className="bg-card border border-card-border rounded-xl p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <Activity size={20} className="text-accent-cyan" />
-                <p className="text-text-secondary">Live Activity Feed</p>
+                <div className="p-2 bg-accent-cyan/20 rounded-lg">
+                  <Activity size={20} className="text-accent-cyan" />
+                </div>
+                <p className="text-text-secondary font-medium">Live Activity Feed</p>
               </div>
               <span className="text-xs text-text-tertiary">{activityLog.length} events</span>
             </div>
