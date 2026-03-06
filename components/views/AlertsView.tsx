@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Bell, Plus, Trash2, AlertTriangle, Zap, CheckCircle } from "lucide-react";
 import { getUserPosition, UserPosition } from "@/lib/contracts/tokos";
+import { requestNotificationPermission, showNotification } from "@/lib/notifications";
 
 interface AlertConfig {
   id: string;
@@ -36,6 +37,19 @@ export function AlertsView() {
   const [alertEvents, setAlertEvents] = useState<AlertEvent[]>([]);
   const [newAddress, setNewAddress] = useState("");
   const [triggeredCount, setTriggeredCount] = useState(0);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+
+  // Request notification permission on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      setNotificationsEnabled(Notification.permission === 'granted');
+    }
+  }, []);
+
+  const enableNotifications = () => {
+    const granted = requestNotificationPermission();
+    setNotificationsEnabled(granted);
+  };
 
   const checkAlerts = useCallback(async (address: string, position: UserPosition | null, previous: UserPosition | null) => {
     const newEvents: AlertEvent[] = [];
@@ -62,8 +76,15 @@ export function AlertsView() {
     if (newEvents.length > 0) {
       setAlertEvents(prev => [...newEvents, ...prev].slice(0, 50));
       setTriggeredCount(prev => prev + newEvents.length);
+      
+      // Show push notification
+      if (notificationsEnabled) {
+        newEvents.forEach(event => {
+          showNotification('DeFi Pulse Alert', event.message);
+        });
+      }
     }
-  }, [alerts]);
+  }, [alerts, notificationsEnabled]);
 
   useEffect(() => {
     const fetchAllPositions = async () => {
@@ -267,6 +288,27 @@ export function AlertsView() {
         </div>
 
         <div className="space-y-6">
+          <div className="bg-card border border-card-border rounded-xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Push Notifications</h3>
+              <button
+                onClick={enableNotifications}
+                className={`px-4 py-2 rounded-lg font-semibold text-sm transition ${
+                  notificationsEnabled 
+                    ? "bg-accent-green/20 text-accent-green border border-accent-green/30"
+                    : "bg-accent-cyan/20 text-accent-cyan border border-accent-cyan/30"
+                }`}
+              >
+                {notificationsEnabled ? "Enabled" : "Enable"}
+              </button>
+            </div>
+            <p className="text-text-secondary text-sm">
+              {notificationsEnabled 
+                ? "You will receive browser notifications when alerts trigger."
+                : "Click to enable browser notifications for real-time alerts."}
+            </p>
+          </div>
+
           <div className="bg-card border border-card-border rounded-xl p-6">
             <h3 className="text-lg font-semibold mb-4">Alert Statistics</h3>
             <div className="space-y-4">
