@@ -79,7 +79,7 @@ export function WhaleTrackersView({ walletAddress }: WhaleTrackersViewProps) {
             </div>
             <div>
               <p className="text-accent-cyan font-semibold text-lg">
-                ⚡ Powered by Somnia Reactivity SDK
+                 Powered by Somnia Reactivity SDK
               </p>
               <p className="text-text-secondary text-sm">
                 Real-time updates without polling - instant push when data changes

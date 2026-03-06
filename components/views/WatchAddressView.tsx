@@ -70,18 +70,17 @@ export function WatchAddressView({ viewedAddress, onViewAddress, onClearView }: 
 
         const sdk = new SDK({ public: publicClient });
 
-        // Subscribe - when this address interacts with Tokos, we get instant update
         await sdk.subscribe({
           ethCalls: [],
           onData: (data: any) => {
-            console.log("⚡ Reactivity: Address activity detected!");
-            fetchPosition(); // Instant refresh!
+            console.log("Reactivity: Address activity detected!");
+            fetchPosition();
           },
         });
 
-        console.log("✅ Reactivity connected for Watch Address!");
+        console.log("Reactivity connected for Watch Address!");
       } catch (err) {
-        console.log("ℹ️ Setting up reactivity...");
+        // Setting up reactivity
       }
     };
 
@@ -121,7 +120,7 @@ export function WatchAddressView({ viewedAddress, onViewAddress, onClearView }: 
         <div className="flex items-center gap-2">
           <Zap size={18} className="text-accent-cyan" />
           <p className="text-accent-cyan text-sm">
-            ⚡ Real-time: Updates push instantly when this address interacts with Tokos
+            Real-time: Updates push instantly when this address interacts with Tokos
           </p>
         </div>
       </div>

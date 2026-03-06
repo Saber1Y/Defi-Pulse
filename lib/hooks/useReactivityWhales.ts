@@ -126,8 +126,7 @@ export function useReactivityWhales(
         setIsReactive(true);
         console.log("Reactivity SDK connected!");
       } catch (err) {
-        console.log("ℹ Using real-time subscription (SDK available)");
-        // SDK is loaded - the subscription mechanism is ready
+        // Using real-time subscription (SDK available)
         setIsReactive(true);
       }
     };

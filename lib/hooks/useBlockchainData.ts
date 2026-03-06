@@ -13,6 +13,7 @@ interface BlockchainData {
 export function useBlockchainData(address?: string | null) {
   const [data, setData] = useState<BlockchainData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
 
   const fetchData = useCallback(async () => {
     try {
@@ -32,6 +33,7 @@ export function useBlockchainData(address?: string | null) {
         ethBalance,
         gasPrice,
       });
+      setLastUpdate(new Date());
     } catch (error) {
       console.error("Error fetching blockchain data:", error);
     }
@@ -40,13 +42,18 @@ export function useBlockchainData(address?: string | null) {
   useEffect(() => {
     fetchData();
 
+    // Polling fallback - fetch every 5 seconds
+    const pollInterval = setInterval(() => {
+      fetchData();
+    }, 5000);
+
     // Reactivity: subscribe to new blocks
     const setupReactivity = async () => {
       try {
         const { SDK } = await import("@somnia-chain/reactivity");
         const { createPublicClient, http } = await import("viem");
 
-        const publicClient = createPublicClient({
+        const pc = createPublicClient({
           chain: {
             id: 50312,
             name: "Somnia Testnet",
@@ -56,21 +63,23 @@ export function useBlockchainData(address?: string | null) {
           transport: http(),
         });
 
-        const sdk = new SDK({ public: publicClient });
+        const sdk = new SDK({ public: pc });
 
         await sdk.subscribe({
           ethCalls: [],
-          onData: () => {
+          onData: (sdkData: any) => {
             fetchData();
           },
         });
       } catch (err) {
-        // Reactivity not available
+        // Reactivity SDK not available, using polling
       }
     };
 
     setupReactivity();
+
+    return () => clearInterval(pollInterval);
   }, [fetchData]);
 
-  return { data, isLoading, refetch: fetchData };
+  return { data, isLoading, refetch: fetchData, lastUpdate };
 }

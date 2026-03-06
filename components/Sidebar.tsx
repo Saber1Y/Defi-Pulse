@@ -38,12 +38,12 @@ export function Sidebar({ currentView, onViewChange, isOpen }: SidebarProps) {
         {isOpen ? (
           <>
             <h1 className="text-xl font-bold flex items-center gap-2">
-              <span className="text-accent-cyan">◆</span>
+              <span className="text-accent-cyan">■</span>
               DeFi Pulse
             </h1>
           </>
         ) : (
-          <span className="text-accent-cyan text-2xl font-bold">◆</span>
+          <span className="text-accent-cyan text-2xl font-bold">■</span>
         )}
       </div>
 
@@ -107,7 +107,7 @@ export function MobileSidebar({ currentView, onViewChange, isOpen, onClose }: Mo
       <aside className="absolute left-0 top-0 w-64 bg-card border-r border-card-border min-h-screen flex flex-col">
         <div className="p-4 border-b border-card-border flex items-center justify-between">
           <h1 className="text-xl font-bold flex items-center gap-2">
-            <span className="text-accent-cyan">◆</span>
+            <span className="text-accent-cyan">■</span>
             DeFi Pulse
           </h1>
           <button onClick={onClose} className="p-2 hover:bg-zinc-900 rounded-lg">

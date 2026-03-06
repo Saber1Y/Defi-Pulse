@@ -51,7 +51,7 @@ export function AlertsView() {
           newEvents.push({
             id: `${Date.now()}-${Math.random()}`,
             alertId: alert.id,
-            message: `⚠️ ${address.slice(0, 8)}...${address.slice(-6)} Health Factor dropped to ${hf.toFixed(2)} (below ${threshold})`,
+            message: `[ALERT] ${address.slice(0, 8)}...${address.slice(-6)} Health Factor dropped to ${hf.toFixed(2)} (below ${threshold})`,
             timestamp: new Date(),
             read: false,
           });

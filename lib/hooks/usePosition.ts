@@ -65,18 +65,17 @@ export function usePosition(address?: string | null): UsePositionReturn {
 
           const sdk = new SDK({ public: publicClient });
 
-          // Subscribe - when YOUR address interacts, get instant update!
           await sdk.subscribe({
             ethCalls: [],
             onData: (data: any) => {
-              console.log("⚡ Reactivity: Your position updated!");
+              console.log("Reactivity: Your position updated!");
               fetchPosition();
             },
           });
 
-          console.log("✅ Portfolio Reactivity connected!");
+          console.log("Portfolio Reactivity connected!");
         } catch (err) {
-          console.log("ℹ️ Setting up portfolio reactivity...");
+          // Setting up portfolio reactivity
         }
       };
 

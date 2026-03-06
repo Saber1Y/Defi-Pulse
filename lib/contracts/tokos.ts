@@ -10,9 +10,66 @@ export async function getAddressBalance(address: string): Promise<string> {
   }
 }
 
+// ERC-20 balanceOf function
+const ERC20_ABI = [
+  {
+    name: 'balanceOf',
+    type: 'function',
+    inputs: [{ name: 'account', type: 'address' }],
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    name: 'symbol',
+    type: 'function',
+    inputs: [],
+    outputs: [{ name: '', type: 'string' }],
+    stateMutability: 'view',
+  },
+  {
+    name: 'decimals',
+    type: 'function',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint8' }],
+    stateMutability: 'view',
+  },
+] as const
+
+export async function getTokenBalance(tokenAddress: string, walletAddress: string): Promise<{ balance: string; symbol: string; decimals: number } | null> {
+  try {
+    const [balance, symbol, decimals] = await Promise.all([
+      publicClient.readContract({
+        address: tokenAddress as `0x${string}`,
+        abi: ERC20_ABI,
+        functionName: 'balanceOf',
+        args: [walletAddress as `0x${string}`],
+      }),
+      publicClient.readContract({
+        address: tokenAddress as `0x${string}`,
+        abi: ERC20_ABI,
+        functionName: 'symbol',
+      }),
+      publicClient.readContract({
+        address: tokenAddress as `0x${string}`,
+        abi: ERC20_ABI,
+        functionName: 'decimals',
+      }),
+    ])
+    
+    return {
+      balance: formatEther(balance),
+      symbol,
+      decimals: Number(decimals),
+    }
+  } catch (error) {
+    console.error('Error fetching token balance:', error)
+    return null
+  }
+}
+
 
 export const TOKOS_ADDRESSES = {
-  LENDING_POOL: '0xEC6758e6324c167DB39B6908036240460a2b0168',
+  LENDING_POOL: '0x7Cb9df1bc191B16BeFF9fdEC2cd1ef91Cac18176',
   POOL_LOGIC: '0x054d3103c6fDbF091B2E42BdaF46b0BA24A60938',
   POOL_DATA_PROVIDER: '0x6A8c1d9ff923B75D662Ee839E4AD8949279bAF10',
   REGISTRY: '0xac5ba04B233A8Dfe0d013c705Ce6B7B36179bCB7',
@@ -137,19 +194,19 @@ async function tryReadContract(userAddress: `0x${string}`, functionName: typeof 
 }
 
 export async function getUserPosition(userAddress: string): Promise<UserPosition | null> {
-  console.log('🔍 Fetching position for:', userAddress, 'from:', TOKOS_ADDRESSES.LENDING_POOL)
+  console.log('Fetching position for:', userAddress, 'from:', TOKOS_ADDRESSES.LENDING_POOL)
   
   for (const functionName of FUNCTION_NAMES) {
     try {
       const result = await tryReadContract(userAddress as `0x${string}`, functionName)
       
       if (result) {
-        console.log(`✅ Tokos function found: ${functionName}`)
-        console.log('📊 Raw values:', result)
+        console.log('Tokos function found:', functionName)
+        console.log('Raw values:', result)
         
         const [totalCollateralBase, totalDebtBase, availableBorrowsBase, currentLiquidationThreshold, ltv, healthFactor] = result as [bigint, bigint, bigint, bigint, bigint, bigint]
 
-        console.log('📈 Parsed values (no divide):', {
+        console.log('Parsed values (no divide):', {
           totalCollateral: Number(formatEther(totalCollateralBase)),
           totalDebt: Number(formatEther(totalDebtBase)),
           availableBorrows: Number(formatEther(availableBorrowsBase)),
@@ -183,7 +240,7 @@ export async function getUserPosition(userAddress: string): Promise<UserPosition
 }
 
 export async function getProtocolStats() {
-  console.log('🔗 Tokos addresses:', TOKOS_ADDRESSES)
+  console.log('Tokos addresses:', TOKOS_ADDRESSES)
   
   try {
     const reservesList = await publicClient.readContract({
@@ -191,7 +248,7 @@ export async function getProtocolStats() {
       abi: LENDING_POOL_ABI,
       functionName: 'getReservesList',
     })
-    console.log('📋 Reserves:', reservesList)
+    console.log('Reserves:', reservesList)
 
     // Try to get count from data provider
     let userCount = 0
@@ -208,7 +265,7 @@ export async function getProtocolStats() {
         abi: poolDataProviderAbi,
         functionName: 'getAllMarkets',
       })
-      console.log('📈 Markets:', markets)
+      console.log('Markets:', markets)
     } catch (e) {
       console.log('Could not get markets')
     }
@@ -217,7 +274,7 @@ export async function getProtocolStats() {
       reserves: [...reservesList],
     }
   } catch (error) {
-    console.log('⚠️ Could not fetch reserves:', error)
+    console.log('Could not fetch reserves:', error)
     return { reserves: [] }
   }
 }
