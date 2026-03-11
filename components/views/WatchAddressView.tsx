@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Search, X, ExternalLink, Zap, TrendingUp, TrendingDown } from "lucide-react";
 import { getUserPosition, UserPosition } from "@/lib/contracts/tokos";
 
@@ -17,6 +17,10 @@ export function WatchAddressView({ viewedAddress, onViewAddress, onClearView }: 
   const [prevPosition, setPrevPosition] = useState<UserPosition | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const subscriptionRef = useRef<any>(null);
+
+  const SOMNIA_WSS = "wss://api.infra.testnet.somnia.network";
+  const TOKOS_CONTRACT = "0x7Cb9df1bc191B16BeFF9fdEC2cd1ef91Cac18176";
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,39 +56,57 @@ export function WatchAddressView({ viewedAddress, onViewAddress, onClearView }: 
 
     fetchPosition();
 
+    // Cleanup previous subscription
+    if (subscriptionRef.current) {
+      subscriptionRef.current.unsubscribe();
+    }
+
     // Setup Reactivity - listen for events and update instantly
     const setupReactivity = async () => {
       try {
         const { SDK } = await import('@somnia-chain/reactivity');
-        const { createPublicClient, http } = await import('viem');
+        const { createPublicClient, webSocket } = await import('viem');
         
-        const publicClient = createPublicClient({
+        const pc = createPublicClient({
           chain: { 
             id: 50312, 
             name: 'Somnia Testnet',
             nativeCurrency: { name: 'STT', symbol: 'STT', decimals: 18 },
             rpcUrls: { default: { http: ['https://dream-rpc.somnia.network/'] } },
           },
-          transport: http(),
+          transport: webSocket(SOMNIA_WSS),
         });
 
-        const sdk = new SDK({ public: publicClient });
+        const sdk = new SDK({ public: pc });
 
-        await sdk.subscribe({
+        const subscription = await sdk.subscribe({
           ethCalls: [],
+          eventContractSources: [TOKOS_CONTRACT],
           onData: (data: any) => {
-            console.log("Reactivity: Address activity detected!");
             fetchPosition();
           },
         });
 
-        console.log("Reactivity connected for Watch Address!");
+        subscriptionRef.current = subscription;
       } catch (err) {
-        // Setting up reactivity
+        // Reactivity setup failed
       }
     };
 
     setupReactivity();
+
+    // Cleanup on unmount
+    return () => {
+      if (subscriptionRef.current) {
+        try {
+          if (typeof subscriptionRef.current.unsubscribe === 'function') {
+            subscriptionRef.current.unsubscribe();
+          }
+        } catch (e) {
+          // Ignore cleanup errors
+        }
+      }
+    };
   }, [viewedAddress]);
 
   const formatUSD = (value: number | undefined | null) => {

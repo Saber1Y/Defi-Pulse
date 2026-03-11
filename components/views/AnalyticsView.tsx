@@ -7,7 +7,9 @@ import { Wallet, Activity, Zap, Clock, Fuel, TrendingUp } from "lucide-react";
 
 export function AnalyticsView() {
   const { data, lastUpdate } = useBlockchainData();
-  const [tokenBalances, setTokenBalances] = useState<{ address: string; balance: string; symbol: string }[]>([]);
+  const [tokenBalances, setTokenBalances] = useState<
+    { address: string; balance: string; symbol: string }[]
+  >([]);
   const [inputAddress, setInputAddress] = useState("");
   const [blockTimes, setBlockTimes] = useState<number[]>([]);
   const [tps, setTps] = useState<number>(0);
@@ -22,8 +24,8 @@ export function AnalyticsView() {
     if (data?.blockNumber && lastBlockRef.current > 0) {
       const diff = Number(data.blockNumber - lastBlockRef.current);
       if (diff > 0 && diff < 10) {
-        setBlockTimes(prev => [...prev.slice(-19), diff]);
-        
+        setBlockTimes((prev) => [...prev.slice(-19), diff]);
+
         // Calculate TPS (rough estimate)
         if (startBlockRef.current === BigInt(0)) {
           startBlockRef.current = data.blockNumber;
@@ -32,7 +34,7 @@ export function AnalyticsView() {
           const blocksMined = Number(data.blockNumber - startBlockRef.current);
           const timeElapsed = (Date.now() - startTimeRef.current) / 1000;
           if (timeElapsed > 10) {
-            setTps(Math.round(blocksMined / timeElapsed * 100)); // rough TPS estimate
+            setTps(Math.round((blocksMined / timeElapsed) * 100)); // rough TPS estimate
           }
         }
       }
@@ -44,27 +46,38 @@ export function AnalyticsView() {
 
   const fetchTokenBalance = async () => {
     if (!inputAddress.startsWith("0x") || inputAddress.length !== 42) return;
-    
+
     const [native, stt] = await Promise.all([
       data?.ethBalance || "0",
       getTokenBalance(STT_TOKEN, inputAddress),
     ]);
-    
-    setTokenBalances(prev => {
-      const filtered = prev.filter(t => t.address !== inputAddress.toLowerCase());
+
+    setTokenBalances((prev) => {
+      const filtered = prev.filter(
+        (t) => t.address !== inputAddress.toLowerCase(),
+      );
       const newBalances = [
-        { address: inputAddress.toLowerCase(), balance: native, symbol: "STT (Native)" },
+        {
+          address: inputAddress.toLowerCase(),
+          balance: native,
+          symbol: "STT (Native)",
+        },
       ];
       if (stt) {
-        newBalances.push({ address: inputAddress.toLowerCase(), balance: stt.balance, symbol: stt.symbol });
+        newBalances.push({
+          address: inputAddress.toLowerCase(),
+          balance: stt.balance,
+          symbol: stt.symbol,
+        });
       }
       return [...filtered, ...newBalances];
     });
   };
 
-  const avgBlockTime = blockTimes.length > 0 
-    ? (blockTimes.reduce((a, b) => a + b, 0) / blockTimes.length).toFixed(2)
-    : "--";
+  const avgBlockTime =
+    blockTimes.length > 0
+      ? (blockTimes.reduce((a, b) => a + b, 0) / blockTimes.length).toFixed(2)
+      : "--";
 
   const formatGwei = (val: bigint | undefined) => {
     if (!val) return "--";
@@ -131,7 +144,7 @@ export function AnalyticsView() {
           <Wallet size={20} className="text-accent-cyan" />
           <h3 className="text-lg font-semibold">Token Balance Checker</h3>
         </div>
-        
+
         <div className="flex gap-3 mb-4">
           <input
             type="text"
@@ -153,9 +166,14 @@ export function AnalyticsView() {
         {tokenBalances.length > 0 && (
           <div className="space-y-2">
             {tokenBalances.map((token, i) => (
-              <div key={i} className="flex justify-between items-center p-3 bg-zinc-900/50 rounded-lg">
+              <div
+                key={i}
+                className="flex justify-between items-center p-3 bg-zinc-900/50 rounded-lg"
+              >
                 <span className="text-text-secondary">{token.symbol}</span>
-                <span className="font-bold text-accent-cyan">{parseFloat(token.balance).toFixed(4)}</span>
+                <span className="font-bold text-accent-cyan">
+                  {parseFloat(token.balance).toFixed(4)}
+                </span>
               </div>
             ))}
           </div>
@@ -164,7 +182,9 @@ export function AnalyticsView() {
 
       {/* Block Time History */}
       <div className="bg-card border border-card-border rounded-xl p-6">
-        <h3 className="text-lg font-semibold mb-4">Block Time History (Last 20 blocks)</h3>
+        <h3 className="text-lg font-semibold mb-4">
+          Block Time History (Last 20 blocks)
+        </h3>
         <div className="h-32 flex items-end gap-1">
           {blockTimes.length === 0 ? (
             <div className="w-full flex items-center justify-center text-text-tertiary">
@@ -193,7 +213,6 @@ export function AnalyticsView() {
         <Zap size={20} className="text-accent-cyan" />
         <div>
           <p className="text-accent-cyan font-medium">Reactivity SDK Active</p>
-          <p className="text-text-secondary text-sm">Data auto-updates every 5 seconds (polling) or via push when available</p>
         </div>
       </div>
     </div>

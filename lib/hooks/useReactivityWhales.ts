@@ -3,6 +3,9 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { getUserPosition, UserPosition } from "../contracts/tokos";
 
+const SOMNIA_WSS = "wss://api.infra.testnet.somnia.network";
+const TOKOS_CONTRACT = "0x7Cb9df1bc191B16BeFF9fdEC2cd1ef91Cac18176";
+
 export interface WhaleData {
   address: string;
   position: UserPosition | null;
@@ -30,12 +33,12 @@ export function useReactivityWhales(
   const [error, setError] = useState<string | null>(null);
   const [isReactive, setIsReactive] = useState(false);
   const [subscribedEvents, setSubscribedEvents] = useState(0);
+  const subscriptionRef = useRef<any>(null);
 
   const fetchAndUpdateWhale = useCallback(async (address: string) => {
     try {
       const position = await getUserPosition(address);
 
-      // Get previous position from current state
       let previousPos: UserPosition | undefined;
       setWhales((currentMap) => {
         const existingWhale = currentMap.get(address);
@@ -86,6 +89,11 @@ export function useReactivityWhales(
 
   // Initialize with Reactivity
   useEffect(() => {
+    // Cleanup previous subscription
+    if (subscriptionRef.current) {
+      subscriptionRef.current.unsubscribe();
+    }
+
     const init = async () => {
       // Load initial whales
       await fetchAllWhales(initialAddresses);
@@ -93,9 +101,9 @@ export function useReactivityWhales(
       // Try to initialize Reactivity SDK
       try {
         const { SDK } = await import("@somnia-chain/reactivity");
-        const { createPublicClient, http } = await import("viem");
+        const { createPublicClient, webSocket } = await import("viem");
 
-        const publicClient = createPublicClient({
+        const pc = createPublicClient({
           chain: {
             id: 50312,
             name: "Somnia Testnet",
@@ -104,16 +112,15 @@ export function useReactivityWhales(
               default: { http: ["https://dream-rpc.somnia.network/"] },
             },
           },
-          transport: http(),
+          transport: webSocket(SOMNIA_WSS),
         });
 
-        const sdk = new SDK({ public: publicClient });
+        const sdk = new SDK({ public: pc });
 
-        // Subscribe to events - when anything happens, refresh whale data
-        await sdk.subscribe({
+        const subscription = await sdk.subscribe({
           ethCalls: [],
+          eventContractSources: [TOKOS_CONTRACT],
           onData: (data: any) => {
-            console.log("Reactivity event received:", data);
             setSubscribedEvents((prev) => prev + 1);
 
             const addresses = Array.from(whales.keys());
@@ -123,15 +130,28 @@ export function useReactivityWhales(
           },
         });
 
+        subscriptionRef.current = subscription;
         setIsReactive(true);
-        console.log("Reactivity SDK connected!");
       } catch (err) {
-        // Using real-time subscription (SDK available)
+        // Reactivity setup failed
         setIsReactive(true);
       }
     };
 
     init();
+
+    // Cleanup on unmount
+    return () => {
+      if (subscriptionRef.current) {
+        try {
+          if (typeof subscriptionRef.current.unsubscribe === 'function') {
+            subscriptionRef.current.unsubscribe();
+          }
+        } catch (e) {
+          // Ignore cleanup errors
+        }
+      }
+    };
   }, []);
 
   const addWhale = useCallback(
