@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  Real-time DeFi dashboard on Somnia, demonstrating Reactivity SDK for instant on-chain updates.
+  Real-time DeFi dashboard for Tokos lending positions on Somnia, powered by Reactivity SDK.
 </p>
 
 <p align="center">
@@ -14,65 +14,63 @@
   <img alt="Somnia" src="https://img.shields.io/badge/Somnia-Testnet-6366F1" />
 </p>
 
-## Overview
+## About
 
-DeFi Pulse is a reactive dashboard that monitors DeFi positions on Somnia Testnet, demonstrating real-time blockchain data updates without traditional polling.
+DeFi Pulse is a real-time dashboard that lets users monitor their Tokos lending positions on Somnia Testnet. It integrates directly with the Tokos protocol to fetch and display user positions, health factors, and collateral data in real-time.
 
-The app showcases:
-- Live block tracking with auto-refresh
-- Token balance checking for any address
-- Wallet position monitoring
-- Whale tracking with activity feeds
-- Configurable alerts with browser push notifications
+The project showcases Somnia's Reactivity SDK for instant on-chain updates - no more refreshing pages or waiting for polls.
+
+## Built for Tokos Users
+
+This dashboard connects directly to Tokos lending pool to show:
+- Total collateral supplied
+- Total debt borrowed
+- Available borrow power
+- Health factor and liquidation risk
+- Position changes over time
+
+When users supply or borrow on Tokos, they can track their positions here with live updates.
 
 ## Features
 
-### Landing Page
-Full explanation of the project with feature overview and step-by-step guide.
-
-### Dashboard
-- Live block number with real-time updates
-- Gas price tracking
-- Activity feed showing new blocks
-- Connected wallet balance display
-
-### Analytics
-- Live network metrics (block, block time, gas price)
-- Token balance checker for any wallet address
-- Block time history visualization
-
-### Watch Address
-- Query any wallet for lending position data
-- Health factor display with status indicators
-- Position details (collateral, debt, available to borrow)
+### Watch Any Address
+Enter any wallet address to view their Tokos lending position. See their collateral, debt, health factor, and available to borrow - all updating in real-time when the address interacts with Tokos.
 
 ### Whale Trackers
-- Monitor multiple wallet addresses
-- Live activity feed showing position changes
-- Near-liquidation table (HF < 1.5)
+Monitor multiple addresses at once. Great for tracking whale wallets, team treasuries, or any address you want to keep an eye on. Shows activity feed when positions change.
 
-### Alerts
-- Configure health factor threshold alerts
-- Browser push notifications when alerts trigger
-- Alert history with timestamps
+### Alerts System
+Set health factor thresholds (e.g., alert me when HF drops below 1.5). Get browser push notifications when positions approach liquidation. Alerts check in real-time as blocks come in.
+
+### Analytics & Token Balances
+Check any address's STT token balance (native and ERC-20). View live network stats including block times and gas prices.
+
+### Dashboard
+See your connected wallet's position at a glance. Watch the live block counter update as new blocks are mined - this is Reactivity SDK in action.
+
+## How It Works
+
+The app reads directly from Tokos smart contracts:
+- Lending Pool: `0x7Cb9df1bc191B16BeFF9fdEC2cd1ef91Cac18176`
+- Calls `getUserAccountData(address)` to fetch position details
+
+Reactivity SDK subscribes to Tokos events. When users supply, borrow, or repay on Tokos, the dashboard updates instantly - no refreshing needed.
+
+## Why Reactivity SDK
+
+Traditional dApps poll for updates every few seconds. With Reactivity SDK:
+- Updates push the moment blocks confirm
+- No wasted API calls
+- Feels like a native app
+- Lower latency for time-sensitive data like liquidation risk
 
 ## Tech Stack
 
-- **Chain**: Somnia Testnet (Chain ID: 50312)
-- **Frontend**: Next.js 16 + React 19 + TypeScript
-- **Styling**: Tailwind CSS
-- **Wallet**: Dynamic + wagmi
-- **Reactivity**: @somnia-chain/reactivity
-- **Data**: viem (direct contract calls)
-
-## Reactivity SDK Demo
-
-| Feature | Without Reactivity | With Reactivity |
-|---------|-------------------|-----------------|
-| Dashboard | Poll every 5s | Push: instant block updates |
-| Watch Address | Poll for updates | Push: see changes live |
-| Whale Trackers | Poll positions | Push: whale moves in real-time |
-| Alerts | Poll for triggers | Push: instant notification |
+- Next.js 16 + React 19 + TypeScript
+- Tailwind CSS for styling
+- viem for contract reads
+- @somnia-chain/reactivity for real-time updates
+- Dynamic + wagmi for wallet connection
 
 ## Getting Started
 
@@ -81,26 +79,20 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:3000`.
+Visit http://localhost:3000
 
-## Demo Flow
+## Testing the Demo
 
-1. Visit the landing page to understand the project
-2. Click "Enter Dashboard" to access the dashboard
-3. Go to Analytics to check token balances
-4. Add addresses in Whale Trackers to monitor
-5. Configure alerts in the Alerts page
+1. Go to app.tokos.fi on testnet
+2. Connect wallet and make a supply/borrow transaction
+3. Use your wallet address in DeFi Pulse to see your position
+4. Watch the block number - it updates in real-time
 
-## Contract
+## Network
 
-- **Tokos Lending Pool**: `0x7Cb9df1bc191B16BeFF9fdEC2cd1ef91Cac18176` (Testnet)
-
-## Somnia Testnet Details
-
-- **Chain ID**: 50312
+- **Chain**: Somnia Testnet (50312)
 - **RPC**: https://dream-rpc.somnia.network/
 - **Explorer**: https://shannon-explorer.somnia.network/
-- **Symbol**: STT (Somnia Test Token)
 
 ## License
 
